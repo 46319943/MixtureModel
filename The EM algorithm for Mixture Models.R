@@ -14,8 +14,8 @@ n = length(x)
 
 ## Run the actual EM algorithm
 ## Initialize the parameters
-w = 1/2 #Assign equal weight to each component to start with
-lambda = n / sum(x)
+w = 1/2 # 正常的多于不正常的，所以这个权重可以设小可以点，比如在0.1左右
+lambda = n / sum(x) # 不正常的指数分布的参数，可以将n缩小来减少先验概率的有效样本数量。比如设成0.1*n
 mu = mean(logx) #Random cluster centers randomly spread over the support of the data
 sigma = sd(logx) #Initial standard deviation
 
