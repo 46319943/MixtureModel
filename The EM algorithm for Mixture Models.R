@@ -21,7 +21,7 @@ sigma = sd(logx) #Initial standard deviation
 
 # Plot the initial guess for the density
 xx = seq(0, 10, length=100)
-yy = w*dexp(xx, rate = 1 / lambda) + (1-w)*dlnorm(xx, mu, sigma)
+yy = w*dexp(xx, lambda) + (1-w)*dlnorm(xx, mu, sigma)
 plot(xx, yy, type="l", ylim=c(0, max(yy)), xlab="x", ylab="Initial density")
 
 s  = 0
@@ -34,7 +34,7 @@ epsilon = 10^(-5)
 while(!sw){
   ## E step
   v = array(0, dim=c(n,KK))
-  v[,1] = log(w) + dexp(x, rate = 1 / lambda, log=TRUE)    #Compute the log of the weights
+  v[,1] = log(w) + dexp(x, lambda, log=TRUE)    #Compute the log of the weights
   v[,2] = log(1-w) + dlnorm(x, mu, sigma, log=TRUE)  #Compute the log of the weights
   for(i in 1:n){
     v[i,] = exp(v[i,] - max(v[i,])) / sum(exp(v[i,] - max(v[i,])))  #Go from logs to actual weights in a numerically stable manner
@@ -58,7 +58,7 @@ while(!sw){
   for(i in 1:n){
     sigma = sigma + v[i,2]*(log(x[i]) - mu)^2
   }
-  sigma = sqrt(sigma/sum(v))
+  sigma = sqrt(sigma/sum(v[,2]))
   
   # Mean
   mu = 0
@@ -70,7 +70,7 @@ while(!sw){
   ##Check convergence
   QQn = 0
   for(i in 1:n){
-    QQn = QQn + v[i,1]*(log(w) + dexp(x[i], rate = 1/ lambda, log=TRUE)) +
+    QQn = QQn + v[i,1]*(log(w) + dexp(x[i], lambda, log=TRUE)) +
       v[i,2]*(log(1-w) + dlnorm(x[i], mu, sigma, log=TRUE))
   }
   if(abs(QQn-QQ)/abs(QQn)<epsilon){
@@ -88,7 +88,7 @@ while(!sw){
   
   par(mar=c(5,4,1.5,0.5))
   xx = seq(0, 10, length=100)
-  yy = w*dexp(xx, rate = 1 / lambda) + (1-w)*dlnorm(xx, mu, sigma)
+  yy = w*dexp(xx, lambda) + (1-w)*dlnorm(xx, mu, sigma)
   plot(xx, yy, type="l", main=paste("s =",s,"   Q =", round(QQ.out[s],4)), lwd=2, col="red", lty=2, xlab="x", ylab="Density")
   points(x, rep(0,n))
 }
