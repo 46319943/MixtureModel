@@ -74,7 +74,7 @@ while(!sw){
   for(i in 1:n){
     lambda = lambda + v[i,2]*x[i]
   }
-  lambda = lambda/sum(v[,2])
+  lambda = lambda / sum(v[,2])
   
   
   ##Check convergence
