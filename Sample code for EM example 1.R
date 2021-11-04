@@ -59,6 +59,8 @@ while(!sw){
   ## M step
   # Weights
   w = mean(v[,1])
+  
+  # Mean
   mu = rep(0, KK)
   for(k in 1:KK){
     for(i in 1:n){
@@ -66,6 +68,7 @@ while(!sw){
     }
     mu[k] = mu[k]/sum(v[,k])
   }
+  
   # Standard deviations
   sigma = 0
   for(i in 1:n){
