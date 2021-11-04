@@ -110,22 +110,4 @@ while(!sw){
   par(mar=c(4,4,2,2)+0.1)
   barplot(yy, names.arg=xx, las=1, xlab = "x", ylab="Initial density", 
           border=NA, main="zero-inflated poission mixtures")
-  points(x, rep(0,n))
-  legend(6,0.22,c("Truth","Estimate"),col=c("black","red"), lty=c(1,2))
 }
-
-
-#Plot final estimate over data
-layout(matrix(c(1,2),2,1), widths=c(1,1), heights=c(1.3,3))
-par(mar=c(3.1,4.1,0.5,0.5))
-plot(QQ.out[1:s],type="l", xlim=c(1,max(10,s)), las=1, ylab="Q", lwd=2)
-
-par(mar=c(5,4,1.5,0.5))
-xx = seq(-8,11,length=200)
-yy = w*dnorm(xx, lambda[1], sigma) + (1-w)*dnorm(xx, lambda[2], sigma)
-plot(xx, yy, type="l", ylim=c(0, max(c(yy,yy.true))), main=paste("s =",s,"   Q =", round(QQ.out[s],4)), lwd=2, col="red", lty=2, xlab="x", ylab="Density")
-lines(xx.true, yy.true, lwd=2)
-points(x, rep(0,n))
-legend(6,0.22,c("Truth","Estimate"),col=c("black","red"), lty=c(1,2), bty="n")
-
-
