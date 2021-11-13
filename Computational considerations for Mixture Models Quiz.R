@@ -1,0 +1,8 @@
+x = c(31, -23)
+# sigma = matrix(c(1,0,0,1), 2, 2)
+Sigma = diag(1,2)
+lz1 = dmvnorm(x, c(0,0), Sigma, log=TRUE) 
+lz2 = dmvnorm(x, c(1/3,1/3), Sigma, log=TRUE) 
+lz3 = dmvnorm(x, c(-2/3,1/3), Sigma, log=TRUE) 
+b = max(lz1, lz2, lz3)
+exp(lz2-b)/(exp(lz1-b) + exp(lz2-b) + exp(lz3-b))
