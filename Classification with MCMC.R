@@ -129,6 +129,8 @@ plot(logpost, type="l", xlab="Iterations", ylab="Log posterior")
 #   lines(ellipse(x=Sigma[k,,], centre=mu[k,], level=0.82), col="grey", lty=2, lwd=2)
 #   lines(ellipse(x=Sigma[k,,], centre=mu[k,], level=0.95), col="grey", lty=2, lwd=2)
 # }
+
+# TODO: 需要使用cc的概率去判断属于哪一类
 max_log_index = which.min(logpost)
 sum(
   !(cc.out[max_log_index,][(n+1):(n+m)] == test_label_numeric)
