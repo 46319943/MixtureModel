@@ -1,18 +1,31 @@
 # Semi-supervised, quadratic discriminat analysis 
 ### Loading data and setting up global variables
 load("banknoteclassification.Rdata")
+training_label_numeric = as.numeric(
+  banknote.training.labels
+)
+test_label_numeric = as.numeric(
+  banknote.test.labels
+)
+library(MASS)
 library(mvtnorm)
 n = dim(banknote.training)[1]  # Size of the training set
 m = dim(banknote.test)[1]      # Size of the test set
-x = rbind(as.matrix(banknote.training[,-1]), as.matrix(banknote.test[,-1]))   # Create dataset of observations, first n belong to the training set, and the rest belong to the test set
+x = rbind(as.matrix(banknote.training), as.matrix(banknote.test))   # Create dataset of observations, first n belong to the training set, and the rest belong to the test set
 p       = dim(x)[2]              # Number of features
-KK      = 3
+KK      = 2 # 分类数量
 epsilon = 0.00001
 
 par(mfrow=c(1,1))
 par(mar=c(2,2,2,2)+0.1)
-colscale = c("black","red","blue")
-pairs(wine.training[,-1], col=colscale[wine.training[,1]], pch=wine.training[,1])
+colscale = c("black","red")
+pairs(
+  banknote.training[,-1], 
+  # 颜色
+  col=colscale[banknote.training.labels],
+  # 形状
+  pch=training_label_numeric
+  )
 
 
 # Initialize the parameters of the algorithm
@@ -29,11 +42,13 @@ KL     = -Inf
 KL.out = NULL
 s      = 0
 
+
+
 while(!sw){
   ## E step
   v = array(0, dim=c(n+m,KK))
   for(k in 1:KK){  #Compute the log of the weights
-    v[1:n,k] = ifelse(wine.training[,1]==k,0,-Inf)  # Training set
+    v[1:n,k] = ifelse(training_label_numeric==k,0,-Inf)  # Training set
     v[(n+1):(n+m),k] = log(w[k]) + mvtnorm::dmvnorm(x[(n+1):(n+m),], mu[k,], Sigma[k,,],log=TRUE)  # Test set
   }
   for(i in 1:(n+m)){
@@ -76,18 +91,18 @@ while(!sw){
 ## Predicted labels
 apply(v, 1, which.max)[(n+1):(n+m)]
 ## True labels
-wine.test[,1]
+test_label_numeric
 ## Comparison
-apply(v, 1, which.max)[(n+1):(n+m)] == wine.test[,1]
-sum(!(apply(v, 1, which.max)[(n+1):(n+m)] == wine.test[,1])) # One error
+apply(v, 1, which.max)[(n+1):(n+m)] == test_label_numeric
+sum(!(apply(v, 1, which.max)[(n+1):(n+m)] == test_label_numeric)) # One error
 
 # Using the qda and lda functions in R
 # qda
-modqda = qda(grouping=wine.training[,1], x=wine.training[,-1], method="mle")
-ccpredqda = predict(modqda,newdata=wine.test[,-1])
-sum(!(ccpredqda$class == wine.test[,1])) # One error
+modqda = qda(grouping=training_label_numeric, x=banknote.training, method="mle")
+ccpredqda = predict(modqda,newdata=banknote.test)
+sum(!(ccpredqda$class == test_label_numeric)) # 3 error
 
 # lda
-modlda = lda(grouping=wine.training[,1], x=wine.training[,-1], method="mle")
-ccpredlda = predict(modlda,newdata=wine.test[,-1])
-sum(!(ccpredlda$class == wine.test[,1])) # No errors!!!
+modlda = lda(grouping=training_label_numeric, x=banknote.training, method="mle")
+ccpredlda = predict(modlda,newdata=banknote.test)
+sum(!(ccpredlda$class == test_label_numeric)) # 1 error
