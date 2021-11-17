@@ -35,7 +35,6 @@ mu  = rmvnorm(KK, apply(x,2,mean), var(x))   #Cluster centers randomly spread ov
 Sigma      = array(0, dim=c(KK,p,p))  #Initial variances are assumed to be the same
 Sigma[1,,] = var(x)/KK  
 Sigma[2,,] = var(x)/KK
-Sigma[3,,] = var(x)/KK
 
 sw     = FALSE
 KL     = -Inf
