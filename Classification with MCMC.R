@@ -30,7 +30,9 @@ cc         = sample(1:KK, n, replace=TRUE, prob=w)
 
 par(mfrow=c(1,1))
 # 只选取了前两个特征
-plot(x[,1], x[,2], col=training_label_numeric, xlab=expression(x[1]), ylab=expression(x[2]))
+plot(x[,1], x[,2], 
+     col=append(training_label_numeric, test_label_numeric), 
+     xlab=expression(x[1]), ylab=expression(x[2]))
 for(k in 1:KK){
   lines(ellipse(x=Sigma[k,,], centre=mu[k,], level=0.50), col="grey", lty=2, lwd=2)
   lines(ellipse(x=Sigma[k,,], centre=mu[k,], level=0.82), col="grey", lty=2, lwd=2)
@@ -47,6 +49,7 @@ SS = var(x)/KK
 
 # Number of iteration of the sampler
 rrr = 1000
+burn = 100
 
 # Storing the samples
 cc.out    = array(0, dim=c(rrr, n+m))
@@ -88,7 +91,8 @@ for(s in 1:rrr){
   
   # Sample the variances
   xcensumk = array(0, dim=c(KK,p,p))
-  for(i in 1:n){
+  # sample size is n+m, not just n
+  for(i in 1:n+m){
     xcensumk[cc[i],,] = xcensumk[cc[i],,] + (x[i,] - mu[cc[i],])%*%t(x[i,] - mu[cc[i],])
   }
   for(k in 1:KK){
@@ -119,22 +123,63 @@ for(s in 1:rrr){
 par(mfrow=c(1,1))
 par(mar=c(4,4,1,1)+0.1)
 plot(logpost, type="l", xlab="Iterations", ylab="Log posterior")
-# 
-# ## Plot the density estimate for the last iteration of the MCMC
-# par(mfrow=c(1,1))
-# par(mar=c(4,4,2,1)+0.1)
-# plot(x[,1], x[,2], col=cc.true, main=paste("s =",s,"   logpost =", round(logpost[s],4)), xlab=expression(x[1]), ylab=expression(x[2]))
-# for(k in 1:KK){
-#   lines(ellipse(x=Sigma[k,,], centre=mu[k,], level=0.50), col="grey", lty=2, lwd=2)
-#   lines(ellipse(x=Sigma[k,,], centre=mu[k,], level=0.82), col="grey", lty=2, lwd=2)
-#   lines(ellipse(x=Sigma[k,,], centre=mu[k,], level=0.95), col="grey", lty=2, lwd=2)
-# }
+
+## Plot the density estimate for the last iteration of the MCMC
+par(mfrow=c(1,1))
+par(mar=c(4,4,2,1)+0.1)
+pair_feature_1 = 3
+pare_feature_2 = 6
+plot(x[,pair_feature_1], x[,pare_feature_2], 
+     col=append(training_label_numeric, test_label_numeric),
+     main=paste("s =",s,"   logpost =", round(logpost[s],4)),
+     xlab=expression(x[pair_feature_1]), ylab=expression(x[pare_feature_2]))
+
+# TODO: ellipse which参数不懂，怎么指定用哪个维度进行绘制？
+for(k in 1:KK){
+  lines(
+    ellipse(
+      x=Sigma[k,c(pair_feature_1,pare_feature_2),c(pair_feature_1,pare_feature_2)], 
+      centre=mu[k,c(pair_feature_1,pare_feature_2)], 
+      level=0.50, 
+    )
+    ,col="grey", lty=2, lwd=2
+  )
+  lines(
+    ellipse(
+      x=Sigma[k,c(pair_feature_1,pare_feature_2),c(pair_feature_1,pare_feature_2)], 
+      centre=mu[k,c(pair_feature_1,pare_feature_2)], 
+      level=0.82, 
+      )
+    ,col="grey", lty=2, lwd=2
+    )
+  lines(
+    ellipse(
+      x=Sigma[k,c(pair_feature_1,pare_feature_2),c(pair_feature_1,pare_feature_2)], 
+      centre=mu[k,c(pair_feature_1,pare_feature_2)], 
+      level=0.95, 
+    )
+    ,col="grey", lty=2, lwd=2
+  )
+}
 
 # TODO: 需要使用cc的概率去判断属于哪一类
-max_log_index = which.min(logpost)
+
+# drop burn and average the cc.out result, 0 error
+sum(
+  !round(
+    colMeans(
+      cc.out[burn:rrr,(n+1):(n+m)]
+    )
+  )
+)
+
+# use max log-likelihood iteration, 3 error
+max_log_index = which.max(logpost)
 sum(
   !(cc.out[max_log_index,][(n+1):(n+m)] == test_label_numeric)
   )
+
+# use the last iteration, 1 error
 sum(
   !(cc.out[rrr,][(n+1):(n+m)] == test_label_numeric)
 )
