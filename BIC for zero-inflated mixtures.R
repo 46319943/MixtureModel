@@ -109,3 +109,23 @@ while(!sw){
   barplot(yy, names.arg=xx, las=1, xlab = "x", ylab="Initial density", 
           border=NA, main="zero-inflated poission mixtures")
 }
+
+## Computing BIC
+BIC = 0
+for(i in 1:n){
+  if(x[i] == 0){
+    BIC = BIC - 2*log(w + (1-w)*dpois(x[i], lambda))
+  }
+  else{
+    BIC = BIC - 2*log((1-w)*dpois(x[i], lambda))
+  }
+ 
+}
+BIC = BIC + ((KK-1) + 1)*log(n)  ### KK-1 independent weights, one lambda
+
+# BIC for Poission model
+BIC_POIS = 0
+for(i in 1:n){
+  BIC_POIS = BIC_POIS - 2*log(dpois(x[i], mean(x)))
+}
+BIC_POIS = BIC_POIS + (1)*log(n)
