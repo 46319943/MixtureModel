@@ -18,8 +18,10 @@ ff = function(alpha)  alpha*log((82+alpha-1)/alpha) - 6
 alph = uniroot(ff, c(0.01, 20))
 alph$root  # 1.496393
 
+alph$root = 0.2
+
 ## Priors set up using an "empirical Bayes" approach
-aa  = rep(1.5/KK,KK)  # We approximate 1.496393 by 1.5
+aa  = rep(alph$root/KK,KK)  # We approximate 1.496393 by 1.5
 eta = mean(x)    
 tau = sqrt(var(x))
 dd  = 2
@@ -181,7 +183,10 @@ Lstst = function(cch, DD, Dbar){
 cch = as.numeric(factor(cc))
 
 ## Setup parameters for the recursive alorithm
-Dbar = 0.50
+gamma1 = 1
+gamma2 = 1
+Dbar = gamma2 / (gamma1 + gamma2)
+# Dbar = 0.50
 optLstst.old  = -Inf
 optLstst.new = Lstst(cch, DD, Dbar=Dbar)
 maxiter = 50
@@ -190,7 +195,7 @@ while(
   (optLstst.old!=optLstst.new)
   &
   (niter<=maxiter)
-  ){
+){
   # 遍历每个x
   for(i in 1:n){
     # 可能不属于任何已有Component，独立出一个Component
@@ -202,7 +207,7 @@ while(
       ccht[i] = s
       q[s] = Lstst(ccht, DD, Dbar=Dbar)
     }
-    # 分配到对应Loss最�?/Utility最大的Component�?
+    # 分配到对应Loss最小/Utility最大的Component中
     cch[i] = which.max(q)
     cch = as.numeric(factor(cch))
   }
